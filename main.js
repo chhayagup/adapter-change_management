@@ -15,6 +15,20 @@ const ServiceNowConnector = require(path.join(__dirname, '/connector.js'));
  * from this class.
  */
 const EventEmitter = require('events').EventEmitter;
+//  /**
+//  * This callback type is called 'requestCallback'.
+//  *
+//  * @callback requestCallback
+//  * @param {*} responseData - Data a function returns.
+//  * @param {*} responseError - A runtime error.
+//  */
+// var callback = function(responseData, responseError) {
+//   if (responseError)
+//     console.log(responseError);
+//   else
+//     console.log(responseData);
+// };
+
 
 /**
  * The ServiceNowAdapter class.
@@ -59,6 +73,7 @@ class ServiceNowAdapter extends EventEmitter {
     // Copy arguments' values to object properties.
     this.id = id;
     this.props = adapterProperties;
+    
     // Instantiate an object from the connector.js module and assign it to an object property.
     this.connector = new ServiceNowConnector({
       url: this.props.url,
@@ -66,9 +81,12 @@ class ServiceNowAdapter extends EventEmitter {
       password: this.props.auth.password,
       serviceNowTable: this.props.serviceNowTable
     });
+    
 
     
   }
+
+ 
 
   /**
    * @memberof ServiceNowAdapter
@@ -86,20 +104,53 @@ class ServiceNowAdapter extends EventEmitter {
   }
 
   /**
-   * @memberof ServiceNowAdapter
-   * @method healthcheck
-   * @summary Check ServiceNow Health
-   * @description Verifies external system is available and healthy.
-   *   Calls method emitOnline if external system is available.
-   *
-   * @param {ServiceNowAdapter~requestCallback} [callback] - The optional callback
-   *   that handles the response.
-   */
-  healthcheck(callback) {
-    // We will build this method in a later lab. For now, it will emulate
-    // a healthy integration by emmitting ONLINE.
-    this.emitOnline();
-  }
+ * @memberof ServiceNowAdapter
+ * @method healthcheck
+ * @summary Check ServiceNow Health
+ * @description Verifies external system is available and healthy.
+ *   Calls method emitOnline if external system is available.
+ *
+ * @param {ServiceNowAdapter~requestCallback} [callback] - The optional callback
+ *   that handles the response.
+ */
+healthcheck(callback) {
+ this.getRecord((result, error) => {
+   /**
+    * For this lab, complete the if else conditional
+    * statements that check if an error exists
+    * or the instance was hibernating. You must write
+    * the blocks for each branch.
+    */
+   if (error) {
+     /**
+      * Write this block.
+      * If an error was returned, we need to emit OFFLINE.
+      * Log the returned error using IAP's global log object
+      * at an error severity. In the log message, record
+      * this.id so an administrator will know which ServiceNow
+      * adapter instance wrote the log message in case more
+      * than one instance is configured.
+      * If an optional IAP callback function was passed to
+      * healthcheck(), execute it passing the error seen as an argument
+      * for the callback's errorMessage parameter.
+      */log.error('ServiceNow: Instance ' + this.id + ' is available.');
+     this.emitOffline((result, error) => callback(result, error));
+    
+   } else {
+     /**
+      * Write this block.
+      * If no runtime problems were detected, emit ONLINE.
+      * Log an appropriate message using IAP's global log object
+      * at a debug severity.
+      * If an optional IAP callback function was passed to
+      * healthcheck(), execute it passing this function's result
+      * parameter as an argument for the callback function's
+      * responseData parameter.
+      */ log.debug('ServiceNow: Instance ' + this.id + ' is available.');
+     this.emitOnline((result, error) => callback(result, error));
+   }
+ });
+}
 
   /**
    * @memberof ServiceNowAdapter
@@ -108,9 +159,9 @@ class ServiceNowAdapter extends EventEmitter {
    * @description Emits an OFFLINE event to IAP indicating the external
    *   system is not available.
    */
-  emitOffline() {
+  emitOffline(callback) {
     this.emitStatus('OFFLINE');
-    log.warn('ServiceNow: Instance is unavailable.');
+    
   }
 
   /**
@@ -120,9 +171,9 @@ class ServiceNowAdapter extends EventEmitter {
    * @description Emits an ONLINE event to IAP indicating external
    *   system is available.
    */
-  emitOnline() {
+  emitOnline(callback) {
     this.emitStatus('ONLINE');
-    log.info('ServiceNow: Instance is available.');
+   
   }
 
   /**
@@ -139,36 +190,77 @@ class ServiceNowAdapter extends EventEmitter {
   }
 
   /**
-   * @memberof ServiceNowAdapter
-   * @method getRecord
-   * @summary Get ServiceNow Record
-   * @description Retrieves a record from ServiceNow.
-   *
-   * @param {ServiceNowAdapter~requestCallback} callback - The callback that
-   *   handles the response.
-   */
-  getRecord(callback) {
-    /**
-     * Write the body for this function.
-     * The function is a wrapper for this.connector's get() method.
-     * Note how the object was instantiated in the constructor().
-     * get() takes a callback function.
+     * @memberof ServiceNowAdapter
+     * @method getRecord
+     * @summary Get ServiceNow Record
+     * @description Retrieves a record from ServiceNow.
+     *
+     * @param {ServiceNowAdapter~requestCallback} callback - The callback that
+     *   handles the response.
      */
-      const conn = new ServiceNowConnector({
-      url: this.props.url,
-      username: this.props.auth.username,
-      password: this.props.auth.password,
-      serviceNowTable: this.props.serviceNowTable
-    });
+    getRecord(callback) {
+        /**
+         * Write the body for this function.
+         * The function is a wrapper for this.connector's get() method.
+         * Note how the object was instantiated in the constructor().
+         * get() takes a callback function.
+         */
+        let response = this.connector.get(callback);
+        // if (response && response !== null && typeof (response === 'object') && ('body' in response)) {
 
-    conn.get((data, error) => {
-    if (error) {
-      console.error(`\nError returned from GET request:\n${JSON.stringify(error)}`);
+        //     var result = response.body.result;
+
+        //     for (var j = 0; j < result.length; j++) {
+        //         for (var key in result[j]) {
+        //             if (result[j].hasOwnProperty(key)) {
+        //                 if (key === 'number'){
+        //                     result[j].change_ticket_number = result[j].number;
+        //                     delete result[j].number;
+        //                 }else if(key === 'sys_id'){
+        //                     result[j].change_ticket_key = result[j].sys_id;
+        //                     delete result[j].sys_id;
+        //                 }else if( key === 'active' || key === 'priority' || key === 'description' || key === 'work_start' || key === 'work_end') {
+        //                     continue;
+        //                 } else {
+        //                     delete result[j][key];
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+
+        // return result;
     }
-    console.log(`\nResponse returned from GET request:\n${JSON.stringify(data)}`)
-  });
+
+
+//   /**
+//    * @memberof ServiceNowAdapter
+//    * @method getRecord
+//    * @summary Get ServiceNow Record
+//    * @description Retrieves a record from ServiceNow.
+//    *
+//    * @param {ServiceNowAdapter~requestCallback} callback - The callback that
+//    *   handles the response.
+//    */
+//   getRecord(callback) {
+//     /**
+//      * Write the body for this function.
+//      * The function is a wrapper for this.connector's get() method.
+//      * Note how the object was instantiated in the constructor().
+//      * get() takes a callback function.
+//      */
     
-  }
+//     this.connector.get((data, error) => {
+//     if (error) {
+//       console.error(`\nError returned from GET request:\n${JSON.stringify(error)}`);
+//       callback.error = error;
+//     }
+//     callback.data = data;
+//     console.log(`\nResponse returned from GET request:\n${JSON.stringify(data)}`)
+    
+//   });
+    
+//   }
 
   /**
    * @memberof ServiceNowAdapter
@@ -186,6 +278,7 @@ class ServiceNowAdapter extends EventEmitter {
      * Note how the object was instantiated in the constructor().
      * post() takes a callback function.
      */
+     
      this.connector.post(callback, (data, error) => {
     if (error) {
       console.error(`\nError returned from POST request:\n${JSON.stringify(error)}`);
