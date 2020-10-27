@@ -193,6 +193,6 @@ class ServiceNowAdapter extends EventEmitter {
     console.log(`\nResponse returned from POST request:\n${JSON.stringify(data)}`)
   });
   }
-}
+} 
 
 module.exports = ServiceNowAdapter;

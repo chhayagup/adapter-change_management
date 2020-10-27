@@ -2,7 +2,7 @@
   "$id": "changeRequest",
   "definitions": {
     "changeTicket": {
-      "title": "changeTicket",
+      "title": "changeTicket", 
       "type": "object",
       "properties": {
         "change_ticket_number": {
