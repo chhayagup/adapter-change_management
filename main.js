@@ -307,7 +307,6 @@ healthcheck(callback) {
                             delete result[key];
                         }
                 }
-                
                 return result;
             }
   }
