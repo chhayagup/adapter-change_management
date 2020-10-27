@@ -1,3 +1,4 @@
+/* global log */
 const request = require('request');
 
 const validResponseRegex = /(2\d\d)/;
@@ -180,7 +181,7 @@ isHibernating(response) {
    * from the previous lab. There should be no
    * hardcoded values.
    */ 
-  log.info("connector.js callOptions.method"+ callOptions.method + " "+ this.options.url+" "+uri);
+  //log.info("connector.js callOptions.method"+ callOptions.method + " "+ this.options.url+" "+uri);
   const requestOptions = {
     method: callOptions.method,
     auth: {
@@ -192,7 +193,7 @@ isHibernating(response) {
   };
   
   request(requestOptions, (error, response, body) => {
-      log.info('connector.js sendRequest response returned from request method'+ response);
+      //log.info('connector.js sendRequest response returned from request method'+ response);
     this.processRequestResults(error, response, body, (processedResults, processedError) => callback(processedResults, processedError));
   });
 }
