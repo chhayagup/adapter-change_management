@@ -60,7 +60,7 @@ function constructUri(serviceNowTable, query = null) {
  * @return {boolean} Returns true if instance is hibernating. Otherwise returns false.
  */
 function isHibernating(response) {
-  return response.body.includes('Hibernating Instance')
+  return response.body.includes('Instance Hibernating page')
   && response.body.includes('<html>')
   && response.statusCode === 200;
 }
@@ -90,19 +90,21 @@ function processRequestResults(error, response, body, callback) {
    * it must call function isHibernating.
    */
 
+   let callbackData = null;
+    let callbackError = null;
     if (error) {
-      console.error('Error present.');
-      callback.error = error;
+        console.error('Error present.');
+        callbackError = error;
     } else if (!validResponseRegex.test(response.statusCode)) {
-      console.error('Bad response code.');
-      callback.error = response;
+        console.error('Bad response code.');
+        callbackError = response;
     } else if (isHibernating(response)) {
-      callback.error = 'Service Now instance is hibernating';
-      console.error(callbackError);
+        callbackError = 'Service Now instance is hibernating';
+        console.error(callbackError);
     } else {
-      callback.data = response;
-    }
-    return callback(callback.data, callback.error);
+        callbackData = response;
+    } 
+    return callback(callbackData, callbackError);
 }
 
 
@@ -134,15 +136,16 @@ function sendRequest(callOptions, callback) {
    * from the previous lab. There should be no
    * hardcoded values.
    */
+  //const requestOptions = {};
   const requestOptions = {
-    method: callOptions.method,
-    auth: {
-      user: options.username,
-      pass: options.password,
-    },
-    baseUrl: options.url,
-    uri: uri
-  };
+        method: callOptions.method,
+        auth: {
+        user: options.username,
+        pass: options.password,
+        },
+        baseUrl: options.url,
+        uri: uri,
+    };
   request(requestOptions, (error, response, body) => {
     processRequestResults(error, response, body, (processedResults, processedError) => callback(processedResults, processedError));
   });

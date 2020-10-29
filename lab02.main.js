@@ -85,7 +85,7 @@ function get(serviceNowTable, callback) {
     } else if (!validResponseRegex.test(response.statusCode)) {
       console.error('Bad response code.');
       callbackError = response;
-    } else if (response.body.includes('Hibernating Instance')) {
+    } else if (response.body.includes('Instance Hibernating page')) {
       callbackError = 'Service Now instance is hibernating';
       console.error(callbackError);
     } else {
@@ -96,29 +96,9 @@ function get(serviceNowTable, callback) {
 
 }
 
-// Use JSDoc to create a JSDoc data type for an IAP callback.
-// Call the new type iapCallback.
-// Notice iapCallback is a data-first callback.
 
 /**
- * This is a [JSDoc comment]{@link http://usejsdoc.org/tags-description.html}.
- * See http://usejsdoc.org/tags-description.html.
- *
- * @callback iapCallback
- * @description A [callback function]{@link
- *   https://developer.mozilla.org/en-US/docs/Glossary/Callback_function}
- *   is a function passed into another function as an argument, which is
- *   then invoked inside the outer function to complete some kind of
- *   routine or action.
- *
- * @param {*} responseData - When no errors are caught, return data as a
- *   single argument to callback function.
- * @param {error} [errorMessage] - If an error is caught, return error
- *   message in optional second argument to callback function.
- */
-
-/**
- * @function get
+ * @function post
  * @description Call the ServiceNow POST API.
  *
  * @param {string} serviceNowTable - The table target of the ServiceNow table API.
@@ -146,7 +126,7 @@ function post(serviceNowTable, callback) {
       pass: options.password,
     },
     baseUrl: options.url,
-    uri: `/api/now/table/${serviceNowTable}`
+    uri: `/api/now/table/${serviceNowTable}`,
   };
 
   // Send Request to ServiceNow.
@@ -165,7 +145,7 @@ function post(serviceNowTable, callback) {
     } else if (!validResponseRegex.test(response.statusCode)) {
       console.error('Bad response code.');
       callbackError = response;
-    } else if (response.body.includes('Hibernating Instance')) {
+    } else if (response.body.includes('Instance Hibernating page')) {
       callbackError = 'Service Now instance is hibernating';
       console.error(callbackError);
     } else {
@@ -176,7 +156,6 @@ function post(serviceNowTable, callback) {
 
 }
 
-
 /*
  * This section is used to test your project.
  * We will test both get() and post() functions.
@@ -184,18 +163,17 @@ function post(serviceNowTable, callback) {
  * If either function returns an error, print the returned data to the console on STDERR.
  */
 function main() {
- 
+  get('change_request', (data, error) => {
+    if (error) {
+      console.error(`\nError returned from GET request:\n${JSON.stringify(error)}`);
+    }
+    console.log(`\nResponse returned from GET request:\n${JSON.stringify(data)}`)
+  });
   post('change_request', (data, error) => {
     if (error) {
       console.error(`\nError returned from POST request:\n${JSON.stringify(error)}`);
     }
     console.log(`\nResponse returned from POST request:\n${JSON.stringify(data)}`)
-  });
- get('change_request', (data, error) => {
-    if (error) {
-      console.error(`\nError returned from GET request:\n${JSON.stringify(error)}`);
-    }
-    console.log(`\nResponse returned from GET request:\n${JSON.stringify(data)}`)
   });
 }
 

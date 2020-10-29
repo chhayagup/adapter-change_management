@@ -66,8 +66,6 @@ class ServiceNowAdapter extends EventEmitter {
       password: this.props.auth.password,
       serviceNowTable: this.props.serviceNowTable
     });
-
-    
   }
 
   /**
@@ -154,20 +152,15 @@ class ServiceNowAdapter extends EventEmitter {
      * Note how the object was instantiated in the constructor().
      * get() takes a callback function.
      */
-      const conn = new ServiceNowConnector({
-      url: this.props.url,
-      username: this.props.auth.username,
-      password: this.props.auth.password,
-      serviceNowTable: this.props.serviceNowTable
-    });
-
-    conn.get((data, error) => {
-    if (error) {
-      console.error(`\nError returned from GET request:\n${JSON.stringify(error)}`);
-    }
-    console.log(`\nResponse returned from GET request:\n${JSON.stringify(data)}`)
-  });
-    
+     this.connector.get((data, error) => {
+        if (error) {
+          //console.error(`\nError returned from GET request:\n${JSON.stringify(error)}`);
+          return callback(error);
+        }
+        //console.log(`\nResponse returned from GET request:\n${JSON.stringify(data)}`);
+        
+        return callback(data);
+      });
   }
 
   /**
@@ -186,13 +179,15 @@ class ServiceNowAdapter extends EventEmitter {
      * Note how the object was instantiated in the constructor().
      * post() takes a callback function.
      */
-     this.connector.post(callback, (data, error) => {
-    if (error) {
-      console.error(`\nError returned from POST request:\n${JSON.stringify(error)}`);
-    }
-    console.log(`\nResponse returned from POST request:\n${JSON.stringify(data)}`)
-  });
+     this.post((data, error) => {
+          if (error) {
+             //console.error(`\nError returned from POST request:\n${JSON.stringify(error)}`);
+            return callback(error);
+          }
+           //console.log(`\nResponse returned from POST request:\n${JSON.stringify(data)}`);
+          return callback(data);
+        }); 
   }
-} 
+}
 
 module.exports = ServiceNowAdapter;
